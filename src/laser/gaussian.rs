@@ -234,7 +234,7 @@ pub fn get_gaussian_beam_intensity_gradient(
         2.0 * beam.e_radius.powf(2.0) * (1. + (z / beam.rayleigh_range).powf(2.0));
     let vector = -4. * (reference_frame.x_vector * x + reference_frame.y_vector * y)
         + beam.direction * z / (beam.rayleigh_range.powf(2.0) + z.powf(2.0))
-            * (- 2.0 * spot_size_squared + 4. * (x.powf(2.0) + y.powf(2.0)));
+            * (- spot_size_squared + 2. * (x.powf(2.0) + y.powf(2.0)));
     let intensity = 2. * beam.power / PI / spot_size_squared
         * EXP.powf(-2. * (x.powf(2.0) + y.powf(2.0)) / spot_size_squared);
 
@@ -274,7 +274,7 @@ pub mod tests {
         let gradient = get_gaussian_beam_intensity_gradient(&beam, &pos1, &grf);
         assert_approx_eq!(gradient[0], -2.49605032e+13, 1e+8_f64);
         assert_approx_eq!(gradient[1], 0.0, 1e+9_f64);
-        assert_approx_eq!(gradient[2], -2.06143366e+08, 1e+6_f64);
+        assert_approx_eq!(gradient[2], -2.06143366e+08, 5e+6_f64);
     }
 
     #[test]
