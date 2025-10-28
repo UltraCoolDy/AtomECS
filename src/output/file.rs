@@ -30,39 +30,39 @@ pub struct OutputSystem<C: Component + Clone, W: Write, F: Format<C, W>, A = Ato
     marker: PhantomData<C>,
 }
 
-pub struct FileOutputPlugin<C,F,A>
-    where C: Component + Clone,
-    F: Format<C, BufWriter<File>>
+pub struct FileOutputPlugin<C, F, A>
+where
+    C: Component + Clone,
+    F: Format<C, BufWriter<File>>,
 {
     file_name: String,
     interval: u64,
     phantom_c: PhantomData<C>,
     phantom_f: PhantomData<F>,
-    phantom_a: PhantomData<A>
+    phantom_a: PhantomData<A>,
 }
-impl<C,F,A> FileOutputPlugin<C,F,A> 
-    where 
-        C: Component + Clone,
-        A: Component,
-        F: Format<C, BufWriter<File>> 
+impl<C, F, A> FileOutputPlugin<C, F, A>
+where
+    C: Component + Clone,
+    A: Component,
+    F: Format<C, BufWriter<File>>,
 {
-    pub fn new(file_name: String, interval: u64) -> FileOutputPlugin<C,F,A>
-    {
+    pub fn new(file_name: String, interval: u64) -> FileOutputPlugin<C, F, A> {
         FileOutputPlugin {
             file_name,
             interval,
             phantom_a: PhantomData,
             phantom_c: PhantomData,
-            phantom_f: PhantomData 
+            phantom_f: PhantomData,
         }
     }
 }
 
-impl<C,F,A> Plugin for FileOutputPlugin<C,F,A> 
-where 
+impl<C, F, A> Plugin for FileOutputPlugin<C, F, A>
+where
     C: Component + Clone + Sync + Send + 'static,
     A: Component + Sync + Send + 'static,
-    F: Format<C, BufWriter<File>> + Sync + Send + 'static
+    F: Format<C, BufWriter<File>> + Sync + Send + 'static,
 {
     fn build(&self, builder: &mut crate::simulation::SimulationBuilder) {
         builder.dispatcher_builder.add(
@@ -71,7 +71,7 @@ where
             &[],
         );
     }
-    fn deps(&self) -> Vec::<Box<dyn Plugin>> {
+    fn deps(&self) -> Vec<Box<dyn Plugin>> {
         Vec::new()
     }
 }

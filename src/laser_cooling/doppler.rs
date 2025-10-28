@@ -22,7 +22,7 @@ pub struct DopplerShiftSampler {
 impl Default for DopplerShiftSampler {
     fn default() -> Self {
         DopplerShiftSampler {
-            /// Doppler shift with respect to laser beam, in SI units of rad/s.
+            // Doppler shift with respect to laser beam, in SI units of rad/s.
             doppler_shift: f64::NAN,
         }
     }
@@ -99,7 +99,7 @@ impl<'a, const N: usize> System<'a> for InitialiseDopplerShiftSamplersSystem<N> 
     fn run(&mut self, (mut samplers,): Self::SystemData) {
         use rayon::prelude::*;
 
-        (&mut samplers).par_join().for_each(|mut sampler| {
+        (&mut samplers).par_join().for_each(|sampler| {
             sampler.contents = [DopplerShiftSampler::default(); N];
         });
     }

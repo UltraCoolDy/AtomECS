@@ -1,13 +1,13 @@
 //! Single particle in a cross beam optical dipole trap
 extern crate atomecs as lib;
 extern crate nalgebra;
-use lib::atom::{self, Position, Velocity};
 use lib::atom::Atom;
+use lib::atom::{self, Position, Velocity};
 use lib::dipole::{self, DipolePlugin};
 use lib::integrator::Timestep;
-use lib::laser::{self, LaserPlugin};
 use lib::laser::gaussian::GaussianBeam;
-use lib::output::file::{FileOutputPlugin};
+use lib::laser::{self, LaserPlugin};
+use lib::output::file::FileOutputPlugin;
 use lib::output::file::{Text, XYZ};
 use lib::simulation::SimulationBuilder;
 use nalgebra::Vector3;
@@ -21,11 +21,20 @@ fn main() {
 
     // Configure simulation output.
     let mut sim_builder = SimulationBuilder::default();
-    sim_builder.add_plugin(LaserPlugin::<{BEAM_NUMBER}>);
-    sim_builder.add_plugin(DipolePlugin::<{BEAM_NUMBER}>);
-    sim_builder.add_plugin(FileOutputPlugin::<Position, Text, Atom>::new("pos.txt".to_string(), 100));
-    sim_builder.add_plugin(FileOutputPlugin::<Velocity, Text, Atom>::new("vel.txt".to_string(), 100));
-    sim_builder.add_plugin(FileOutputPlugin::<Position, XYZ, Atom>::new("position.xyz".to_string(), 100));
+    sim_builder.add_plugin(LaserPlugin::<{ BEAM_NUMBER }>);
+    sim_builder.add_plugin(DipolePlugin::<{ BEAM_NUMBER }>);
+    sim_builder.add_plugin(FileOutputPlugin::<Position, Text, Atom>::new(
+        "pos.txt".to_string(),
+        100,
+    ));
+    sim_builder.add_plugin(FileOutputPlugin::<Velocity, Text, Atom>::new(
+        "vel.txt".to_string(),
+        100,
+    ));
+    sim_builder.add_plugin(FileOutputPlugin::<Position, XYZ, Atom>::new(
+        "position.xyz".to_string(),
+        100,
+    ));
     let mut sim = sim_builder.build();
 
     // Create dipole laser.

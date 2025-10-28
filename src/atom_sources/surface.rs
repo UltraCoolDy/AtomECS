@@ -6,8 +6,8 @@ use std::marker::PhantomData;
 use nalgebra::Vector3;
 
 use super::emit::AtomNumberToEmit;
-use super::VelocityCap;
 use super::species::AtomCreator;
+use super::VelocityCap;
 use rand;
 use rand::Rng;
 
@@ -19,15 +19,24 @@ use crate::shapes::{Cylinder, Surface};
 extern crate specs;
 use specs::{Component, Entities, HashMapStorage, Join, LazyUpdate, Read, ReadStorage, System};
 
-pub struct SurfaceSource<T> where T : AtomCreator {
+pub struct SurfaceSource<T>
+where
+    T: AtomCreator,
+{
     /// The temperature of the surface source, in Kelvin.
     pub temperature: f64,
-    phantom: PhantomData<T>
+    phantom: PhantomData<T>,
 }
-impl<T> Component for SurfaceSource<T> where T : AtomCreator + 'static {
+impl<T> Component for SurfaceSource<T>
+where
+    T: AtomCreator + 'static,
+{
     type Storage = HashMapStorage<Self>;
 }
-impl<T> MaxwellBoltzmannSource for SurfaceSource<T> where T : AtomCreator {
+impl<T> MaxwellBoltzmannSource for SurfaceSource<T>
+where
+    T: AtomCreator,
+{
     fn get_temperature(&self) -> f64 {
         self.temperature
     }
@@ -41,7 +50,10 @@ impl<T> MaxwellBoltzmannSource for SurfaceSource<T> where T : AtomCreator {
 /// The oven points in the direction [Oven.direction].
 #[derive(Default)]
 pub struct CreateAtomsOnSurfaceSystem<T>(PhantomData<T>);
-impl<'a, T> System<'a> for CreateAtomsOnSurfaceSystem<T> where T : AtomCreator + 'static {
+impl<'a, T> System<'a> for CreateAtomsOnSurfaceSystem<T>
+where
+    T: AtomCreator + 'static,
+{
     type SystemData = (
         Entities<'a>,
         ReadStorage<'a, SurfaceSource<T>>,

@@ -7,14 +7,14 @@ use lib::atom::{Position, Velocity};
 use lib::atom_sources::emit::AtomNumberToEmit;
 use lib::atom_sources::mass::{MassDistribution, MassRatio};
 use lib::atom_sources::oven::{OvenAperture, OvenBuilder};
-use lib::atom_sources::{VelocityCap, AtomSourcePlugin};
+use lib::atom_sources::{AtomSourcePlugin, VelocityCap};
 use lib::destructor::ToBeDestroyed;
 use lib::integrator::Timestep;
-use lib::laser::LaserPlugin;
 use lib::laser::gaussian::GaussianBeam;
+use lib::laser::LaserPlugin;
 use lib::laser_cooling::{CoolingLight, LaserCoolingPlugin};
 use lib::magnetic::quadrupole::QuadrupoleField3D;
-use lib::output::file::{FileOutputPlugin};
+use lib::output::file::FileOutputPlugin;
 use lib::output::file::Text;
 use lib::shapes::Cuboid;
 use lib::sim_region::{SimulationVolume, VolumeType};
@@ -24,17 +24,23 @@ use nalgebra::Vector3;
 use specs::prelude::*;
 use std::time::Instant;
 
-const BEAM_NUMBER : usize = 6;
+const BEAM_NUMBER: usize = 6;
 
 fn main() {
     let now = Instant::now();
 
     let mut sim_builder = SimulationBuilder::default();
-    sim_builder.add_plugin(LaserPlugin::<{BEAM_NUMBER}>);
-    sim_builder.add_plugin(LaserCoolingPlugin::<Strontium88_461, {BEAM_NUMBER}>::default());
+    sim_builder.add_plugin(LaserPlugin::<{ BEAM_NUMBER }>);
+    sim_builder.add_plugin(LaserCoolingPlugin::<Strontium88_461, { BEAM_NUMBER }>::default());
     sim_builder.add_plugin(AtomSourcePlugin::<Strontium88>::default());
-    sim_builder.add_plugin(FileOutputPlugin::<Position, Text, Atom>::new("pos.txt".to_string(), 10));
-    sim_builder.add_plugin(FileOutputPlugin::<Velocity, Text, Atom>::new("vel.txt".to_string(), 10));
+    sim_builder.add_plugin(FileOutputPlugin::<Position, Text, Atom>::new(
+        "pos.txt".to_string(),
+        10,
+    ));
+    sim_builder.add_plugin(FileOutputPlugin::<Velocity, Text, Atom>::new(
+        "vel.txt".to_string(),
+        10,
+    ));
     let mut sim = sim_builder.build();
 
     // Create magnetic field.
@@ -79,10 +85,7 @@ fn main() {
             rayleigh_range: f64::INFINITY,
             ellipticity: 0.0,
         })
-        .with(CoolingLight::for_transition::<Strontium88_461>(
-            detuning,
-            1,
-        ))
+        .with(CoolingLight::for_transition::<Strontium88_461>(detuning, 1))
         .build();
     sim.world
         .create_entity()
@@ -94,10 +97,7 @@ fn main() {
             rayleigh_range: f64::INFINITY,
             ellipticity: 0.0,
         })
-        .with(CoolingLight::for_transition::<Strontium88_461>(
-            detuning,
-            1,
-        ))
+        .with(CoolingLight::for_transition::<Strontium88_461>(detuning, 1))
         .build();
     sim.world
         .create_entity()
@@ -109,10 +109,7 @@ fn main() {
             rayleigh_range: f64::INFINITY,
             ellipticity: 0.0,
         })
-        .with(CoolingLight::for_transition::<Strontium88_461>(
-            detuning,
-            1,
-        ))
+        .with(CoolingLight::for_transition::<Strontium88_461>(detuning, 1))
         .build();
     sim.world
         .create_entity()
@@ -124,10 +121,7 @@ fn main() {
             rayleigh_range: f64::INFINITY,
             ellipticity: 0.0,
         })
-        .with(CoolingLight::for_transition::<Strontium88_461>(
-            detuning,
-            1,
-        ))
+        .with(CoolingLight::for_transition::<Strontium88_461>(detuning, 1))
         .build();
 
     // Create an oven.

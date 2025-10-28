@@ -8,7 +8,7 @@ use crate::laser_cooling::photons_scattered::TotalPhotonsScattered;
 use rand::Rng;
 use specs::{Component, Entities, LazyUpdate, Read, ReadStorage, System, VecStorage};
 
-use super::transition::{TransitionComponent};
+use super::transition::TransitionComponent;
 
 /// Marks an atom as being in a dark state
 pub struct Dark;
@@ -34,9 +34,14 @@ impl RepumpLoss {
 /// Checks if an atom transitions into a dark state during the current
 /// simulation step if a `RepumpLoss` component has been initialized.
 #[derive(Default)]
-pub struct RepumpSystem<T>(PhantomData<T>) where T : TransitionComponent;
+pub struct RepumpSystem<T>(PhantomData<T>)
+where
+    T: TransitionComponent;
 
-impl<'a, T> System<'a> for RepumpSystem<T> where T : TransitionComponent {
+impl<'a, T> System<'a> for RepumpSystem<T>
+where
+    T: TransitionComponent,
+{
     type SystemData = (
         Option<Read<'a, RepumpLoss>>,
         Read<'a, LazyUpdate>,

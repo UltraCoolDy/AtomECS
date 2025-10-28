@@ -6,7 +6,7 @@ use std::marker::PhantomData;
 
 use super::emit::AtomNumberToEmit;
 use super::precalc::{MaxwellBoltzmannSource, PrecalculatedSpeciesInformation};
-use super::species::{AtomCreator};
+use super::species::AtomCreator;
 use crate::constant;
 use crate::constant::PI;
 use crate::initiate::*;
@@ -47,16 +47,22 @@ pub enum OvenAperture {
 }
 
 /// Builder struct for creating Ovens.
-pub struct OvenBuilder<T> where T : AtomCreator {
+pub struct OvenBuilder<T>
+where
+    T: AtomCreator,
+{
     temperature: f64,
     aperture: OvenAperture,
     direction: Vector3<f64>,
     microchannel_radius: f64,
     microchannel_length: f64,
     max_theta: f64,
-    phantom: PhantomData<T>
+    phantom: PhantomData<T>,
 }
-impl<T> OvenBuilder<T> where T : AtomCreator {
+impl<T> OvenBuilder<T>
+where
+    T: AtomCreator,
+{
     pub fn new(temperature_kelvin: f64, direction: Vector3<f64>) -> Self {
         Self {
             temperature: temperature_kelvin,
@@ -68,7 +74,7 @@ impl<T> OvenBuilder<T> where T : AtomCreator {
             microchannel_length: 4e-3,
             microchannel_radius: 0.2e-3,
             max_theta: PI / 2.0,
-            phantom: PhantomData
+            phantom: PhantomData,
         }
     }
 
@@ -102,7 +108,7 @@ impl<T> OvenBuilder<T> where T : AtomCreator {
                 self.microchannel_length,
             ),
             max_theta: self.max_theta,
-            phantom: PhantomData
+            phantom: PhantomData,
         }
     }
 }
@@ -120,7 +126,10 @@ impl<T> OvenBuilder<T> where T : AtomCreator {
 /// Additionally, any atom spawned with an angle greater than `max_theta` is ignored.
 /// For real ovens, the maximum theta is determined by geometric constraints, for example the presence of a 'lip' of given length and
 /// aperture radius.
-pub struct Oven<T> where T : AtomCreator {
+pub struct Oven<T>
+where
+    T: AtomCreator,
+{
     /// Temperature of the oven, in Kelvin
     pub temperature: f64,
 
@@ -136,9 +145,12 @@ pub struct Oven<T> where T : AtomCreator {
     /// The maximum angle theta at which atoms can be emitted from the oven. This can be constricted eg by a heat shield, or 'hot lip'.
     pub max_theta: f64,
 
-    phantom : PhantomData<T>
+    phantom: PhantomData<T>,
 }
-impl<T> MaxwellBoltzmannSource for Oven<T> where T : AtomCreator {
+impl<T> MaxwellBoltzmannSource for Oven<T>
+where
+    T: AtomCreator,
+{
     fn get_temperature(&self) -> f64 {
         self.temperature
     }
@@ -146,10 +158,16 @@ impl<T> MaxwellBoltzmannSource for Oven<T> where T : AtomCreator {
         3.0
     }
 }
-impl<T> Component for Oven<T> where T : AtomCreator + 'static {
+impl<T> Component for Oven<T>
+where
+    T: AtomCreator + 'static,
+{
     type Storage = HashMapStorage<Self>;
 }
-impl<T> Oven<T> where T : AtomCreator {
+impl<T> Oven<T>
+where
+    T: AtomCreator,
+{
     pub fn get_random_spawn_position(&self) -> Vector3<f64> {
         let mut rng = rand::thread_rng();
         match self.aperture {
@@ -177,9 +195,14 @@ impl<T> Oven<T> where T : AtomCreator {
 ///
 /// The oven points in the direction [Oven.direction].
 #[derive(Default)]
-pub struct OvenCreateAtomsSystem<T>(PhantomData<T>) where T : AtomCreator;
+pub struct OvenCreateAtomsSystem<T>(PhantomData<T>)
+where
+    T: AtomCreator;
 
-impl<'a, T> System<'a> for OvenCreateAtomsSystem<T> where T : AtomCreator + 'static {
+impl<'a, T> System<'a> for OvenCreateAtomsSystem<T>
+where
+    T: AtomCreator + 'static,
+{
     type SystemData = (
         Entities<'a>,
         ReadStorage<'a, Oven<T>>,
@@ -211,7 +234,7 @@ impl<'a, T> System<'a> for OvenCreateAtomsSystem<T> where T : AtomCreator + 'sta
 
                 let (new_vel, theta) =
                     velocity_generate(speed, &oven.direction, &oven.theta_distribution);
-                
+
                 if theta > oven.max_theta {
                     continue;
                 }
@@ -223,12 +246,7 @@ impl<'a, T> System<'a> for OvenCreateAtomsSystem<T> where T : AtomCreator + 'sta
                         pos: start_position,
                     },
                 );
-                updater.insert(
-                    new_atom,
-                    Velocity {
-                        vel: new_vel,
-                    },
-                );
+                updater.insert(new_atom, Velocity { vel: new_vel });
                 updater.insert(new_atom, Force::new());
                 updater.insert(new_atom, Mass { value: mass });
                 updater.insert(new_atom, Atom);
@@ -279,8 +297,9 @@ pub fn jtheta(theta: f64, channel_radius: f64, channel_length: f64) -> f64 {
         let r_q = q.acos() - q * (1.0 - q.powf(2.0)).powf(0.5); // (4.23)
         j_theta = alpha * theta.cos()
             + (2.0 / PI)
-                * theta.cos() * ((1.0 - alpha) * r_q
-                + 2.0 / (3.0 * q) * (1.0 - 2.0 * alpha) * (1.0 - (1.0 - q.powf(2.0)).powf(1.5)))
+                * theta.cos()
+                * ((1.0 - alpha) * r_q
+                    + 2.0 / (3.0 * q) * (1.0 - 2.0 * alpha) * (1.0 - (1.0 - q.powf(2.0)).powf(1.5)))
     // (4.21)
     } else {
         j_theta = alpha * theta.cos() + 4.0 / (3.0 * PI * q) * (1.0 - 2.0 * alpha) * theta.cos();
@@ -312,7 +331,6 @@ fn create_jtheta_distribution(
         weights.push(weight);
         // Note: we can exclude d_theta because it is constant and the distribution will be normalized.
     }
-
 
     WeightedProbabilityDistribution::new(thetas, weights)
 }

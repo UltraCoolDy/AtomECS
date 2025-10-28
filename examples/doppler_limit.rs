@@ -13,16 +13,16 @@ extern crate nalgebra;
 use lib::atom::{Atom, Force, Mass, Position, Velocity};
 use lib::initiate::NewlyCreated;
 use lib::integrator::Timestep;
-use lib::laser::LaserPlugin;
 use lib::laser::gaussian::GaussianBeam;
+use lib::laser::LaserPlugin;
 use lib::laser_cooling::force::{EmissionForceConfiguration, EmissionForceOption};
 use lib::laser_cooling::photons_scattered::ScatteringFluctuationsOption;
 use lib::laser_cooling::{CoolingLight, LaserCoolingPlugin};
 use lib::magnetic::quadrupole::QuadrupoleField3D;
-use lib::output::file::{FileOutputPlugin};
+use lib::output::file::FileOutputPlugin;
 use lib::output::file::Text;
 use lib::simulation::SimulationBuilder;
-use lib::species::{Rubidium87_780D2};
+use lib::species::Rubidium87_780D2;
 use nalgebra::Vector3;
 use rand_distr::{Distribution, Normal};
 use specs::prelude::*;
@@ -32,7 +32,7 @@ use std::time::Instant;
 extern crate serde;
 use serde::Deserialize;
 
-const BEAM_NUMBER : usize = 6;
+const BEAM_NUMBER: usize = 6;
 
 #[derive(Deserialize)]
 pub struct DopperSimulationConfiguration {
@@ -62,9 +62,12 @@ fn main() {
 
     // Create the simulation
     let mut sim_builder = SimulationBuilder::default();
-    sim_builder.add_plugin(LaserPlugin::<{BEAM_NUMBER}>);
-    sim_builder.add_plugin(LaserCoolingPlugin::<Rubidium87_780D2, {BEAM_NUMBER}>::default());
-    sim_builder.add_plugin(FileOutputPlugin::<Velocity, Text, Atom>::new("vel.txt".to_string(), 10));
+    sim_builder.add_plugin(LaserPlugin::<{ BEAM_NUMBER }>);
+    sim_builder.add_plugin(LaserCoolingPlugin::<Rubidium87_780D2, { BEAM_NUMBER }>::default());
+    sim_builder.add_plugin(FileOutputPlugin::<Velocity, Text, Atom>::new(
+        "vel.txt".to_string(),
+        10,
+    ));
     let mut sim = sim_builder.build();
 
     // Create magnetic field.
@@ -93,8 +96,7 @@ fn main() {
             ellipticity: 0.0,
         })
         .with(CoolingLight::for_transition::<Rubidium87_780D2>(
-            detuning,
-            -1,
+            detuning, -1,
         ))
         .build();
     sim.world
@@ -108,8 +110,7 @@ fn main() {
             ellipticity: 0.0,
         })
         .with(CoolingLight::for_transition::<Rubidium87_780D2>(
-            detuning,
-            -1,
+            detuning, -1,
         ))
         .build();
     sim.world
@@ -123,8 +124,7 @@ fn main() {
             ellipticity: 0.0,
         })
         .with(CoolingLight::for_transition::<Rubidium87_780D2>(
-            detuning,
-            1,
+            detuning, 1,
         ))
         .build();
     sim.world
@@ -138,8 +138,7 @@ fn main() {
             ellipticity: 0.0,
         })
         .with(CoolingLight::for_transition::<Rubidium87_780D2>(
-            detuning,
-            1,
+            detuning, 1,
         ))
         .build();
     sim.world
@@ -153,8 +152,7 @@ fn main() {
             ellipticity: 0.0,
         })
         .with(CoolingLight::for_transition::<Rubidium87_780D2>(
-            detuning,
-            1,
+            detuning, 1,
         ))
         .build();
     sim.world
@@ -168,8 +166,7 @@ fn main() {
             ellipticity: 0.0,
         })
         .with(CoolingLight::for_transition::<Rubidium87_780D2>(
-            detuning,
-            1,
+            detuning, 1,
         ))
         .build();
 
@@ -209,9 +206,10 @@ fn main() {
     // Enable fluctuation options
     //  * Allow photon numbers to fluctuate.
     //  * Allow random force from emission of photons.
-    sim.world.insert(EmissionForceOption::On(EmissionForceConfiguration {
-        explicit_threshold: 5,
-    }));
+    sim.world
+        .insert(EmissionForceOption::On(EmissionForceConfiguration {
+            explicit_threshold: 5,
+        }));
     sim.world.insert(ScatteringFluctuationsOption::On);
 
     // Run the simulation for a number of steps.

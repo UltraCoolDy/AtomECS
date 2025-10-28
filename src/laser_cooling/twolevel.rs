@@ -8,11 +8,14 @@ use serde::{Deserialize, Serialize};
 use specs::prelude::*;
 use std::{fmt, marker::PhantomData};
 
-use super::transition::{TransitionComponent};
+use super::transition::TransitionComponent;
 
 /// Represents the steady-state population density of the excited state and ground state for a given atomic transition.
 #[derive(Deserialize, Serialize, Clone)]
-pub struct TwoLevelPopulation<T> where T : TransitionComponent {
+pub struct TwoLevelPopulation<T>
+where
+    T: TransitionComponent,
+{
     /// steady-state population density of the ground state, a number in [0,1]
     pub ground: f64,
     /// steady-state population density of the excited state, a number in [0,1]
@@ -20,25 +23,34 @@ pub struct TwoLevelPopulation<T> where T : TransitionComponent {
     marker: PhantomData<T>,
 }
 
-impl<T> fmt::Display for TwoLevelPopulation<T> where T : TransitionComponent {
+impl<T> fmt::Display for TwoLevelPopulation<T>
+where
+    T: TransitionComponent,
+{
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "g:{},e:{}", self.ground, self.excited)
     }
 }
 
-impl<T> Default for TwoLevelPopulation<T> where T : TransitionComponent {
+impl<T> Default for TwoLevelPopulation<T>
+where
+    T: TransitionComponent,
+{
     fn default() -> Self {
         TwoLevelPopulation {
-            /// steady-state population density of the ground state, a number in [0,1]
+            // steady-state population density of the ground state, a number in [0,1]
             ground: f64::NAN,
-            /// steady-state population density of the excited state, a number in [0,1]
+            // steady-state population density of the excited state, a number in [0,1]
             excited: f64::NAN,
-            marker: PhantomData
+            marker: PhantomData,
         }
     }
 }
 
-impl<T> TwoLevelPopulation<T> where T : TransitionComponent {
+impl<T> TwoLevelPopulation<T>
+where
+    T: TransitionComponent,
+{
     /// Calculate the ground state population from excited state population
     pub fn calculate_ground_state(&mut self) {
         self.ground = 1. - self.excited;
@@ -49,15 +61,23 @@ impl<T> TwoLevelPopulation<T> where T : TransitionComponent {
     }
 }
 
-impl<T> Component for TwoLevelPopulation<T> where T : TransitionComponent + 'static {
+impl<T> Component for TwoLevelPopulation<T>
+where
+    T: TransitionComponent + 'static,
+{
     type Storage = VecStorage<Self>;
 }
 
 /// Calculates the TwoLevelPopulation from the natural linewidth and the `RateCoefficients`
 #[derive(Default)]
-pub struct CalculateTwoLevelPopulationSystem<T, const N: usize>(PhantomData<T>) where T: TransitionComponent;
+pub struct CalculateTwoLevelPopulationSystem<T, const N: usize>(PhantomData<T>)
+where
+    T: TransitionComponent;
 
-impl<'a, T, const N: usize> System<'a> for CalculateTwoLevelPopulationSystem<T, N> where T: TransitionComponent {
+impl<'a, T, const N: usize> System<'a> for CalculateTwoLevelPopulationSystem<T, N>
+where
+    T: TransitionComponent,
+{
     type SystemData = (
         ReadStorage<'a, T>,
         ReadStorage<'a, RateCoefficients<T, N>>,
@@ -96,7 +116,11 @@ impl<'a, T, const N: usize> System<'a> for CalculateTwoLevelPopulationSystem<T, 
 pub mod tests {
 
     use super::*;
-    use crate::{laser::{DEFAULT_BEAM_LIMIT, sampler::LaserSamplerMask}, species::{Strontium88_461, Rubidium87_780D2}, laser_cooling::{rate::RateCoefficient, transition::AtomicTransition}};
+    use crate::{
+        laser::{sampler::LaserSamplerMask, DEFAULT_BEAM_LIMIT},
+        laser_cooling::{rate::RateCoefficient, transition::AtomicTransition},
+        species::{Rubidium87_780D2, Strontium88_461},
+    };
     use assert_approx_eq::assert_approx_eq;
     extern crate nalgebra;
 
@@ -109,8 +133,7 @@ pub mod tests {
         test_world.register::<Strontium88_461>();
 
         // this test runs with two lasers only and we have to tell this the mask
-        let mut active_lasers =
-            [LaserSamplerMask { filled: false }; DEFAULT_BEAM_LIMIT];
+        let mut active_lasers = [LaserSamplerMask { filled: false }; DEFAULT_BEAM_LIMIT];
         active_lasers[0] = LaserSamplerMask { filled: true };
         active_lasers[1] = LaserSamplerMask { filled: true };
 
@@ -119,7 +142,7 @@ pub mod tests {
 
         let atom1 = test_world
             .create_entity()
-            .with(RateCoefficients  {
+            .with(RateCoefficients {
                 contents: [rc; DEFAULT_BEAM_LIMIT],
             })
             .with(Strontium88_461)
@@ -129,7 +152,8 @@ pub mod tests {
             .with(TwoLevelPopulation::<Strontium88_461>::default())
             .build();
 
-        let mut system = CalculateTwoLevelPopulationSystem::<Strontium88_461, { DEFAULT_BEAM_LIMIT }>::default();
+        let mut system =
+            CalculateTwoLevelPopulationSystem::<Strontium88_461, { DEFAULT_BEAM_LIMIT }>::default();
         system.run_now(&test_world);
         test_world.maintain();
         let sampler_storage = test_world.read_storage::<TwoLevelPopulation<Strontium88_461>>();
@@ -161,8 +185,8 @@ pub mod tests {
         test_world.register::<TwoLevelPopulation<Rubidium87_780D2>>();
 
         // this test runs with two lasers only and we have to tell this the mask
-        let mut active_lasers = [LaserSamplerMask { filled: false };
-            crate::laser::DEFAULT_BEAM_LIMIT];
+        let mut active_lasers =
+            [LaserSamplerMask { filled: false }; crate::laser::DEFAULT_BEAM_LIMIT];
         active_lasers[0] = LaserSamplerMask { filled: true };
 
         let mut rc = RateCoefficient::<Rubidium87_780D2>::default();
@@ -180,7 +204,9 @@ pub mod tests {
             .with(TwoLevelPopulation::<Rubidium87_780D2>::default())
             .build();
 
-        let mut system = CalculateTwoLevelPopulationSystem::<Rubidium87_780D2, { DEFAULT_BEAM_LIMIT }>::default();
+        let mut system =
+            CalculateTwoLevelPopulationSystem::<Rubidium87_780D2, { DEFAULT_BEAM_LIMIT }>::default(
+            );
         system.run_now(&test_world);
         test_world.maintain();
         let sampler_storage = test_world.read_storage::<TwoLevelPopulation<Rubidium87_780D2>>();

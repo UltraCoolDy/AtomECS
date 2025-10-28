@@ -2,9 +2,9 @@
 
 use specs::DispatcherBuilder;
 
+use crate::laser::index::LaserIndex;
 use crate::laser::LaserPlugin;
 use crate::{constant, simulation::Plugin};
-use crate::laser::index::LaserIndex;
 
 use serde::{Deserialize, Serialize};
 use specs::prelude::*;
@@ -83,20 +83,20 @@ impl<'a> System<'a> for AttachIndexToDipoleLightSystem {
 }
 
 /// This plugin implements a dipole force that can be used to confine cold atoms.
-/// 
+///
 /// See also [crate::dipole]
-/// 
+///
 /// # Generic Arguments
-/// 
+///
 /// * `N`: The maximum number of laser beams (must match the `LaserPlugin`).
-pub struct DipolePlugin<const N : usize>;
+pub struct DipolePlugin<const N: usize>;
 impl<const N: usize> Plugin for DipolePlugin<N> {
     fn build(&self, builder: &mut crate::simulation::SimulationBuilder) {
         add_systems_to_dispatch::<N>(&mut builder.dispatcher_builder, &[]);
         register_components(&mut builder.world);
     }
-    fn deps(&self) -> Vec::<Box<dyn Plugin>> {
-        vec![Box::new(LaserPlugin::<{N}>)]
+    fn deps(&self) -> Vec<Box<dyn Plugin>> {
+        vec![Box::new(LaserPlugin::<{ N }>)]
     }
 }
 

@@ -7,26 +7,31 @@ extern crate nalgebra;
 use lib::atom::{Atom, Force, Mass, Position, Velocity};
 use lib::initiate::NewlyCreated;
 use lib::integrator::Timestep;
-use lib::laser::LaserPlugin;
 use lib::laser::gaussian::GaussianBeam;
+use lib::laser::LaserPlugin;
 use lib::laser_cooling::{CoolingLight, LaserCoolingPlugin};
 use lib::magnetic::quadrupole::QuadrupoleField3D;
-use lib::output::file::{FileOutputPlugin};
+use lib::output::file::FileOutputPlugin;
 use lib::output::file::Text;
 use lib::simulation::SimulationBuilder;
-use lib::species::{Strontium88_461};
+use lib::species::Strontium88_461;
 use nalgebra::Vector3;
 use specs::prelude::*;
 
-const BEAM_NUMBER : usize = 6;
+const BEAM_NUMBER: usize = 6;
 
 fn main() {
-
     let mut sim_builder = SimulationBuilder::default();
-    sim_builder.add_plugin(LaserPlugin::<{BEAM_NUMBER}>);
-    sim_builder.add_plugin(LaserCoolingPlugin::<Strontium88_461, {BEAM_NUMBER}>::default());
-    sim_builder.add_plugin(FileOutputPlugin::<Position, Text, Atom>::new("pos.txt".to_string(), 10));
-    sim_builder.add_plugin(FileOutputPlugin::<Velocity, Text, Atom>::new("vel.txt".to_string(), 10));
+    sim_builder.add_plugin(LaserPlugin::<{ BEAM_NUMBER }>);
+    sim_builder.add_plugin(LaserCoolingPlugin::<Strontium88_461, { BEAM_NUMBER }>::default());
+    sim_builder.add_plugin(FileOutputPlugin::<Position, Text, Atom>::new(
+        "pos.txt".to_string(),
+        10,
+    ));
+    sim_builder.add_plugin(FileOutputPlugin::<Velocity, Text, Atom>::new(
+        "vel.txt".to_string(),
+        10,
+    ));
     let mut sim = sim_builder.build();
 
     // Create magnetic field.
@@ -50,8 +55,7 @@ fn main() {
             ellipticity: 0.0,
         })
         .with(CoolingLight::for_transition::<Strontium88_461>(
-            detuning,
-            -1,
+            detuning, -1,
         ))
         .build();
     sim.world
@@ -65,8 +69,7 @@ fn main() {
             ellipticity: 0.0,
         })
         .with(CoolingLight::for_transition::<Strontium88_461>(
-            detuning,
-            -1,
+            detuning, -1,
         ))
         .build();
 

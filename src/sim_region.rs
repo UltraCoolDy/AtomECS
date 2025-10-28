@@ -151,7 +151,7 @@ impl<'a> System<'a> for AttachRegionTestsToNewlyCreatedSystem {
 }
 
 /// This plugin implements simulation bounds, and the removal of atoms which leave them.
-/// 
+///
 /// See also [crate::sim_region]
 #[derive(Default)]
 pub struct SimulationRegionPlugin;
@@ -160,7 +160,7 @@ impl Plugin for SimulationRegionPlugin {
         add_systems_to_dispatch(&mut builder.dispatcher_builder, &[]);
         register_components(&mut builder.world);
     }
-    fn deps(&self) -> Vec::<Box<dyn Plugin>> {
+    fn deps(&self) -> Vec<Box<dyn Plugin>> {
         Vec::new()
     }
 }
@@ -172,10 +172,7 @@ impl Plugin for SimulationRegionPlugin {
 /// `builder`: the dispatch builder to modify
 ///
 /// `deps`: any dependencies that must be completed before the `sim_region` systems run.
-fn add_systems_to_dispatch(
-    builder: &mut DispatcherBuilder<'static, 'static>,
-    deps: &[&str],
-) {
+fn add_systems_to_dispatch(builder: &mut DispatcherBuilder<'static, 'static>, deps: &[&str]) {
     builder.add(ClearRegionTestSystem, "clear_region_test", deps);
     builder.add(
         RegionTestSystem::<Sphere> {
@@ -325,9 +322,7 @@ pub mod tests {
         test_world
             .create_entity()
             .with(Position { pos: cuboid_pos })
-            .with(Cuboid {
-                half_width,
-            })
+            .with(Cuboid { half_width })
             .with(SimulationVolume {
                 volume_type: VolumeType::Inclusive,
             })

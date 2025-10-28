@@ -2,8 +2,8 @@
 
 use std::marker::PhantomData;
 
+use super::transition::TransitionComponent;
 use super::CoolingLight;
-use super::transition::{TransitionComponent};
 use crate::constant;
 use crate::laser::gaussian::GaussianBeam;
 use crate::laser::index::LaserIndex;
@@ -30,9 +30,14 @@ const LASER_CACHE_SIZE: usize = 16;
 /// `CoolingLightIndex` is present and assigned for all cooling lasers, with an index
 /// corresponding to the entries in the `ActualPhotonsScatteredVector` vector.
 #[derive(Default)]
-pub struct CalculateAbsorptionForcesSystem<T, const N: usize>(PhantomData<T>) where T : TransitionComponent;
+pub struct CalculateAbsorptionForcesSystem<T, const N: usize>(PhantomData<T>)
+where
+    T: TransitionComponent;
 
-impl<'a, T, const N: usize> System<'a> for CalculateAbsorptionForcesSystem<T, N> where T : TransitionComponent {
+impl<'a, T, const N: usize> System<'a> for CalculateAbsorptionForcesSystem<T, N>
+where
+    T: TransitionComponent,
+{
     type SystemData = (
         ReadStorage<'a, LaserIndex>,
         ReadStorage<'a, CoolingLight>,
@@ -124,9 +129,14 @@ pub struct EmissionForceConfiguration {
 /// Uses an internal threshold of 5 to decide if the random vektor is iteratively
 /// produced or derived by random-walk formula and a single random unit vector.
 #[derive(Default)]
-pub struct ApplyEmissionForceSystem<T, const N: usize>(PhantomData<T>) where T : TransitionComponent;
+pub struct ApplyEmissionForceSystem<T, const N: usize>(PhantomData<T>)
+where
+    T: TransitionComponent;
 
-impl<'a, T, const N: usize> System<'a> for ApplyEmissionForceSystem<T, N> where T : TransitionComponent {
+impl<'a, T, const N: usize> System<'a> for ApplyEmissionForceSystem<T, N>
+where
+    T: TransitionComponent,
+{
     type SystemData = (
         Option<Read<'a, EmissionForceOption>>,
         WriteStorage<'a, Force>,
@@ -210,7 +220,8 @@ pub mod tests {
         test_world.register::<LaserIndex>();
         test_world.register::<CoolingLight>();
         test_world.register::<GaussianBeam>();
-        test_world.register::<ActualPhotonsScatteredVector<Strontium88_461, { DEFAULT_BEAM_LIMIT }>>();
+        test_world
+            .register::<ActualPhotonsScatteredVector<Strontium88_461, { DEFAULT_BEAM_LIMIT }>>();
         test_world.register::<Force>();
         test_world.register::<Dark>();
         test_world.insert(Timestep { delta: time_delta });
@@ -248,7 +259,8 @@ pub mod tests {
             .with(Force::new())
             .build();
 
-        let mut system = CalculateAbsorptionForcesSystem::<Strontium88_461, { DEFAULT_BEAM_LIMIT }>::default();
+        let mut system =
+            CalculateAbsorptionForcesSystem::<Strontium88_461, { DEFAULT_BEAM_LIMIT }>::default();
         system.run_now(&test_world);
         test_world.maintain();
         let sampler_storage = test_world.read_storage::<Force>();
@@ -268,7 +280,8 @@ pub mod tests {
 
         let time_delta = 1.0e-5;
 
-        test_world.register::<ActualPhotonsScatteredVector<Strontium88_461, { DEFAULT_BEAM_LIMIT }>>();
+        test_world
+            .register::<ActualPhotonsScatteredVector<Strontium88_461, { DEFAULT_BEAM_LIMIT }>>();
         test_world.register::<Force>();
         test_world.register::<Strontium88_461>();
         test_world.insert(EmissionForceOption::default());
@@ -286,15 +299,15 @@ pub mod tests {
             .with(Strontium88_461)
             .build();
 
-        let mut system = ApplyEmissionForceSystem::<Strontium88_461, { DEFAULT_BEAM_LIMIT }>::default();
+        let mut system =
+            ApplyEmissionForceSystem::<Strontium88_461, { DEFAULT_BEAM_LIMIT }>::default();
         system.run_now(&test_world);
         test_world.maintain();
         let sampler_storage = test_world.read_storage::<Force>();
 
-        let max_force_total = number_scattered * 2. * PI * Strontium88_461::frequency()
-            / constant::C
-            * HBAR
-            / time_delta;
+        let max_force_total =
+            number_scattered * 2. * PI * Strontium88_461::frequency() / constant::C * HBAR
+                / time_delta;
         assert_approx_eq!(
             sampler_storage
                 .get(atom1)

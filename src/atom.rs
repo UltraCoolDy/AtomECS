@@ -31,7 +31,7 @@ impl Default for Position {
 impl Position {
     pub fn new() -> Self {
         Position {
-            /// position in 3D in units of m
+            // position in 3D in units of m
             pos: Vector3::new(0.0, 0.0, 0.0),
         }
     }
@@ -156,11 +156,15 @@ impl Plugin for AtomPlugin {
     fn build(&self, builder: &mut crate::simulation::SimulationBuilder) {
         register_components(&mut builder.world);
 
-        builder.dispatcher_builder.add(DeflagNewAtomsSystem, "deflag", &[]);
-        builder.dispatcher_builder.add(AddOldForceToNewAtomsSystem, "", &[]);
+        builder
+            .dispatcher_builder
+            .add(DeflagNewAtomsSystem, "deflag", &[]);
+        builder
+            .dispatcher_builder
+            .add(AddOldForceToNewAtomsSystem, "", &[]);
     }
 
-    fn deps(&self) -> Vec::<Box<dyn Plugin>> {
+    fn deps(&self) -> Vec<Box<dyn Plugin>> {
         Vec::new()
     }
 }

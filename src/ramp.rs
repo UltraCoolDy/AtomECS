@@ -62,10 +62,7 @@ where
     }
 
     pub fn new(keyframes: Vec<(f64, T)>) -> Self {
-        Ramp {
-            keyframes,
-            prev: 0,
-        }
+        Ramp { keyframes, prev: 0 }
     }
 }
 
@@ -115,8 +112,8 @@ where
         }
     }
 }
-
-pub mod tests {
+#[cfg(test)]
+mod tests {
     use super::*;
     extern crate specs;
     use specs::{Component, HashMapStorage};
@@ -137,7 +134,8 @@ pub mod tests {
         let frames = vec![
             (0.0, ALerpComp { value: 0.0 }),
             (1.0, ALerpComp { value: 1.0 }),
-            (2.0, ALerpComp { value: 0.0 })];
+            (2.0, ALerpComp { value: 0.0 }),
+        ];
         let mut ramp = Ramp {
             prev: 0,
             keyframes: frames,
@@ -188,7 +186,8 @@ pub mod tests {
 
         let frames = vec![
             (0.0, ALerpComp { value: 0.0 }),
-            (1.0, ALerpComp { value: 1.0 })];
+            (1.0, ALerpComp { value: 1.0 }),
+        ];
         let ramp = Ramp {
             prev: 0,
             keyframes: frames,

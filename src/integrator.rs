@@ -50,11 +50,11 @@ impl<'a> System<'a> for EulerIntegrationSystem {
         use rayon::prelude::*;
 
         step.n += 1;
-        (&mut vel, &mut pos, &force, &mass).par_join().for_each(
-            |(vel, pos, force, mass)| {
+        (&mut vel, &mut pos, &force, &mass)
+            .par_join()
+            .for_each(|(vel, pos, force, mass)| {
                 euler_update(vel, pos, force, mass, t.delta);
-            },
-        );
+            });
     }
 }
 
@@ -86,7 +86,7 @@ impl<'a> System<'a> for VelocityVerletIntegratePositionSystem {
 
         (&mut pos, &vel, &mut old_force, &force, &mass)
             .par_join()
-            .for_each(|(mut pos, vel, mut old_force, force, mass)| {
+            .for_each(|(pos, vel, old_force, force, mass)| {
                 pos.pos = pos.pos
                     + vel.vel * dt
                     + force.force / (constant::AMU * mass.value) / 2.0 * dt * dt;
@@ -119,7 +119,8 @@ impl<'a> System<'a> for VelocityVerletIntegrateVelocitySystem {
 
         (&mut vel, &force, &old_force, &mass).par_join().for_each(
             |(vel, force, old_force, mass)| {
-                vel.vel += (force.force + old_force.0.force) / (constant::AMU * mass.value) / 2.0 * dt;
+                vel.vel +=
+                    (force.force + old_force.0.force) / (constant::AMU * mass.value) / 2.0 * dt;
             },
         );
     }
@@ -302,9 +303,7 @@ pub mod tests {
                 vel: Vector3::new(0.0, 0.0, 0.0),
             })
             .with(Force { force })
-            .with(OldForce {
-                0: Force { force },
-            })
+            .with(OldForce { 0: Force { force } })
             .with(Mass {
                 value: mass / constant::AMU,
             })

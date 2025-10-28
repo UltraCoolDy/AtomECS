@@ -2,7 +2,7 @@
 
 use std::marker::PhantomData;
 
-use super::{WeightedProbabilityDistribution, species::AtomCreator};
+use super::{species::AtomCreator, WeightedProbabilityDistribution};
 use crate::atom::*;
 use crate::atom_sources::emit::AtomNumberToEmit;
 use crate::constant::EXP;
@@ -18,25 +18,40 @@ use specs::{
     WriteStorage,
 };
 
-pub struct GaussianVelocityDistributionSourceDefinition<T> where T : AtomCreator {
+pub struct GaussianVelocityDistributionSourceDefinition<T>
+where
+    T: AtomCreator,
+{
     pub mean: Vector3<f64>,
     pub std: Vector3<f64>,
-    phantom: PhantomData<T>
+    phantom: PhantomData<T>,
 }
-impl<T> Component for GaussianVelocityDistributionSourceDefinition<T> where T : AtomCreator + 'static {
+impl<T> Component for GaussianVelocityDistributionSourceDefinition<T>
+where
+    T: AtomCreator + 'static,
+{
     type Storage = HashMapStorage<Self>;
 }
 
-pub struct GaussianVelocityDistributionSource<T> where T : AtomCreator {
+pub struct GaussianVelocityDistributionSource<T>
+where
+    T: AtomCreator,
+{
     vx_distribution: WeightedProbabilityDistribution,
     vy_distribution: WeightedProbabilityDistribution,
     vz_distribution: WeightedProbabilityDistribution,
-    phantom: PhantomData<T>
+    phantom: PhantomData<T>,
 }
-impl<T> Component for GaussianVelocityDistributionSource<T> where T : AtomCreator + 'static {
+impl<T> Component for GaussianVelocityDistributionSource<T>
+where
+    T: AtomCreator + 'static,
+{
     type Storage = HashMapStorage<Self>;
 }
-impl<T> GaussianVelocityDistributionSource<T> where T : AtomCreator {
+impl<T> GaussianVelocityDistributionSource<T>
+where
+    T: AtomCreator,
+{
     fn get_random_velocity<R: Rng + ?Sized>(&self, rng: &mut R) -> Vector3<f64> {
         Vector3::new(
             self.vx_distribution.sample(rng),
@@ -79,7 +94,10 @@ pub fn create_gaussian_velocity_distribution(
 /// stores the result in a [GaussianVelocityDistributionSource](struct.GaussianVelocityDistributionSource.html) component.
 #[derive(Default)]
 pub struct PrecalculateForGaussianSourceSystem<T>(PhantomData<T>);
-impl<'a, T> System<'a> for PrecalculateForGaussianSourceSystem<T> where T : AtomCreator + 'static {
+impl<'a, T> System<'a> for PrecalculateForGaussianSourceSystem<T>
+where
+    T: AtomCreator + 'static,
+{
     type SystemData = (
         Entities<'a>,
         ReadStorage<'a, GaussianVelocityDistributionSourceDefinition<T>>,
@@ -102,7 +120,7 @@ impl<'a, T> System<'a> for PrecalculateForGaussianSourceSystem<T> where T : Atom
                     definition.mean[2],
                     definition.std[2],
                 ),
-                phantom: PhantomData
+                phantom: PhantomData,
             };
             precalculated_data.push((entity, source));
             println!("Precalculated velocity and mass distributions for a gaussian source.");
@@ -118,7 +136,10 @@ impl<'a, T> System<'a> for PrecalculateForGaussianSourceSystem<T> where T : Atom
 
 #[derive(Default)]
 pub struct GaussianCreateAtomsSystem<T>(PhantomData<T>);
-impl<'a, T> System<'a> for GaussianCreateAtomsSystem<T> where T : AtomCreator + 'static {
+impl<'a, T> System<'a> for GaussianCreateAtomsSystem<T>
+where
+    T: AtomCreator + 'static,
+{
     type SystemData = (
         Entities<'a>,
         ReadStorage<'a, GaussianVelocityDistributionSource<T>>,
@@ -133,23 +154,13 @@ impl<'a, T> System<'a> for GaussianCreateAtomsSystem<T> where T : AtomCreator + 
         (entities, sources, numbers_to_emits, positions, masses, updater): Self::SystemData,
     ) {
         let mut rng = rand::thread_rng();
-        for (source, number_to_emit, source_position, mass) in (
-            &sources,
-            &numbers_to_emits,
-            &positions,
-            &masses,
-        )
-            .join()
+        for (source, number_to_emit, source_position, mass) in
+            (&sources, &numbers_to_emits, &positions, &masses).join()
         {
             for _i in 0..number_to_emit.number {
                 let new_atom = entities.create();
                 let new_vel = source.get_random_velocity(&mut rng);
-                updater.insert(
-                    new_atom,
-                    Velocity {
-                        vel: new_vel,
-                    },
-                );
+                updater.insert(new_atom, Velocity { vel: new_vel });
                 updater.insert(new_atom, source_position.clone());
                 updater.insert(new_atom, Force::new());
                 updater.insert(new_atom, mass.clone());

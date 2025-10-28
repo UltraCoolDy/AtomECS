@@ -42,8 +42,8 @@ pub mod tests {
     use super::*;
 
     extern crate specs;
-    use assert_approx_eq::assert_approx_eq;
     use approx::assert_relative_eq;
+    use assert_approx_eq::assert_approx_eq;
     use specs::{Builder, RunNow, World};
     extern crate nalgebra;
     use crate::constant;
@@ -269,6 +269,5 @@ pub mod tests {
             max_relative = 5e-3,
             epsilon = 1e-40
         );
-
     }
 }

@@ -5,8 +5,8 @@ pub mod gaussian;
 pub mod mass;
 pub mod oven;
 pub mod precalc;
-pub mod surface;
 pub mod species;
+pub mod surface;
 
 use specs::prelude::*;
 
@@ -26,20 +26,25 @@ pub struct VelocityCap {
 }
 
 /// This plugin implements the creation of atoms of a given species from sources such as ovens or vacuum chambers.
-/// 
+///
 /// See also [crate::atom_sources].
-/// 
+///
 /// # Generic Arguments
-/// 
+///
 /// * `T`: The atom species to create, which must implement the `AtomCreator` trait.
 #[derive(Default)]
-pub struct AtomSourcePlugin<T>(PhantomData<T>) where T : AtomCreator;
-impl<T> Plugin for AtomSourcePlugin<T> where T : AtomCreator + 'static {
+pub struct AtomSourcePlugin<T>(PhantomData<T>)
+where
+    T: AtomCreator;
+impl<T> Plugin for AtomSourcePlugin<T>
+where
+    T: AtomCreator + 'static,
+{
     fn build(&self, builder: &mut crate::simulation::SimulationBuilder) {
         add_systems_to_dispatch::<T>(&mut builder.dispatcher_builder, &[]);
         register_components::<T>(&mut builder.world);
     }
-    fn deps(&self) -> Vec::<Box<dyn Plugin>> {
+    fn deps(&self) -> Vec<Box<dyn Plugin>> {
         Vec::new()
     }
 }
@@ -51,10 +56,10 @@ impl<T> Plugin for AtomSourcePlugin<T> where T : AtomCreator + 'static {
 /// `builder`: the dispatch builder to modify
 ///
 /// `deps`: any dependencies that must be completed before the atom_sources systems run.
-fn add_systems_to_dispatch<T>(
-    builder: &mut DispatcherBuilder<'static, 'static>,
-    deps: &[&str],
-) where T : AtomCreator + 'static {
+fn add_systems_to_dispatch<T>(builder: &mut DispatcherBuilder<'static, 'static>, deps: &[&str])
+where
+    T: AtomCreator + 'static,
+{
     builder.add(
         emit::EmitNumberPerFrameSystem,
         "emit_number_per_frame",
@@ -111,7 +116,10 @@ fn add_systems_to_dispatch<T>(
 }
 
 /// Registers resources required by `atom_sources` to the ecs world.
-fn register_components<T>(world: &mut World) where T : AtomCreator + 'static {
+fn register_components<T>(world: &mut World)
+where
+    T: AtomCreator + 'static,
+{
     world.register::<oven::Oven<T>>();
     world.register::<mass::MassDistribution>();
     world.register::<emit::EmitFixedRate>();
